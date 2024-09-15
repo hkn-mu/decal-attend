@@ -6,7 +6,10 @@ BASE_DIR=/autograder/autograder_samples
 cd /autograder/autograder_samples
 git pull
 
-cp /autograder/submission_metadata.json $BASE_DIR/studentdata/submission_metadata.json
+cp /autograder/submission_metadata.json $BASE_DIR/submission_metadata.json
+
+# Copy Google service account key
+cp /autograder/source/secret.json /autograder/autograder_samples/secret.json
 
 pip install -r $BASE_DIR/requirements.txt
 

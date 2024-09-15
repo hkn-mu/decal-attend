@@ -48,14 +48,10 @@ if __name__ == "__main__":
 
     responses = pandas.DataFrame(
         responses_sheet.get_all_records(),
-        header=0,
-        usecols=["Email Address", "Lecture", "Secret Word", "Comments"],
     )
 
     keywords = pandas.DataFrame(
         keywords_sheet.get_all_records(),
-        header=0,
-        usecols=["Lecture", "Secret Word"],
     )
 
     user = getUser()

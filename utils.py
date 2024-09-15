@@ -55,7 +55,7 @@ def parseResponses(responses: pandas.DataFrame, email: str) -> pandas.DataFrame:
 
 def getUser() -> User:
     p = Path(".")
-    q = p / "studentdata" / "submission_metadata.json"
+    q = p / "submission_metadata.json"
     metadata = {}
     with q.open() as f:
         metadata = json.load(f)
