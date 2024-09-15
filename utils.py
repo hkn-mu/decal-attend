@@ -18,12 +18,8 @@ class User(TypedDict):
     id: int
 
 
-def buildSections() -> dict[str, Section]:
+def buildSections(keywords: pandas.DataFrame) -> dict[str, Section]:
     sections: dict[str, Section] = {}
-    p = Path(".") / "studentdata" / "keywords.csv"
-    keywords = pandas.read_csv(
-        p.resolve(), header=0, usecols=["Lecture", "Secret Word"]
-    )
 
     # Iterating usually bad but keywords small and we need to touch every value
     year = datetime.datetime.now().year
@@ -49,14 +45,12 @@ def buildSections() -> dict[str, Section]:
     return sections
 
 
-def parseResponses(email: str) -> pandas.DataFrame:
-    p = Path(".") / "studentdata" / "responses.csv"
-    responses = pandas.read_csv(
-        p.resolve(),
-        header=0,
-        usecols=["Email Address", "Lecture", "Secret Word", "Comments"],
+def parseResponses(responses: pandas.DataFrame, email: str) -> pandas.DataFrame:
+    filter = responses["Email Address"].apply(
+        lambda a: str(a).lower().strip() == email.lower(), 1
     )
-    return responses[responses["Email Address"] == email]
+
+    return responses.filter(axis=0, items=filter[filter].index)
 
 
 def getUser() -> User:

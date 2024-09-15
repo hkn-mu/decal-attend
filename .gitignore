@@ -1,3 +1,5 @@
 /autograder-zip/deploy_key
 /autograder-zip/deploy_key.pub
+/autograder-zip/secret.json
+/**/autograder.zip
 /__pycache__/**/*
