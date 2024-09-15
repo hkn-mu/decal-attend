@@ -108,7 +108,9 @@ def run_autograder() -> AutograderResult:
 
         autograder_result["tests"].append(test)
 
-    autograder_result["output"] += f"\n**The current max score for this assignment is: {current_max}/{len(autograder_result["tests"])}**"
+    autograder_result[
+        "output"
+    ] += f"\n**The current max score for this assignment is: {current_max}/{len(autograder_result['tests'])}**"
     return autograder_result
 
 
