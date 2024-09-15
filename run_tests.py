@@ -98,7 +98,7 @@ if __name__ == "__main__":
         else:
             test["output"] = "No submission found."
 
-        comments = filtered_response[filtered_response["Comments"].notnull()]
+        comments = filtered_response[filtered_response["Comments"] != ""]
         if len(filtered_response) != 0 and len(comments) == 0:
             test["output"] += "\nNo feedback provided."
         elif len(comments) != 0:
