@@ -25,9 +25,9 @@ class AutograderResult(TypedDict):
 
 
 SEMESTER_CONFIG = {
-    "sheet_id": "",
-    "responses_gid": 0,
-    "keywords_gid": 0,
+    "sheet_id": "1NZFt_ZgkvujTZaKIsiY_mNkP-ixJUOkRPyUBogQZaRY",
+    "responses_gid": 1457747331,
+    "keywords_gid": 277060732,
 }
 
 
