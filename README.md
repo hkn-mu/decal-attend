@@ -38,6 +38,4 @@ If a student filled out the form with an email that was not their gradescope ema
 
 ## How do I refresh the autograder?
 
-Open the attendance Google Sheet and download the `responses` and `keywords` tabs as `.csv` files. Rename these files to `responses.csv` and `keywords.csv` respectively, then replace the `responses.csv` and `keywords.csv` files currently found in your semester branch. Push your changes to GitHub.
-
 In Gradescope, navigate to the Decal Attendance assignment and go to the Manage Submissions tab. Press "Regrade All Submissions" in the bottom left, then press "Regrade" in the modal that appears. These new sheets will be pulled and each students' grades will be updated.
