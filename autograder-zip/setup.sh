@@ -16,7 +16,7 @@ git clone git@github.com:hkn-mu/decal-attend.git /autograder/autograder_samples
 
 # Checkout the right repository
 cd /autograder/autograder_samples
-git checkout gapi-test
+git checkout xxYY
 
 # Install python dependencies
 pip install -r /autograder/autograder_samples/requirements.txt
