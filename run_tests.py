@@ -1,8 +1,11 @@
 import json
 from utils import getUser, buildSections, parseResponses
 from pathlib import Path
-from git import Repo
 from typing import TypedDict, Literal
+import datetime
+from pytz import timezone
+import gspread
+import pandas
 
 
 class Test(TypedDict):
@@ -21,14 +24,39 @@ class AutograderResult(TypedDict):
     tests: list[Test]
 
 
+SEMESTER_CONFIG = {
+    "sheet_id": "",
+    "responses_gid": 0,
+    "keywords_gid": 0,
+}
+
+
 if __name__ == "__main__":
-    repo = Repo.init("/autograder/autograder_samples")
-    last_updated = repo.head.commit.committed_datetime
+    # Pick the time that we'll use to represent the "last ran" time
+    last_updated = datetime.datetime.now(timezone("US/Pacific"))
     last_updated_str = last_updated.strftime("%B %-d, %Y at %-I:%M %p")
 
+    # Connect to Google Sheets API
+
+    SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
+    gc = gspread.service_account("secret.json", SCOPES)
+    sheet = gc.open_by_key(SEMESTER_CONFIG["sheet_id"])
+    responses_sheet = sheet.get_worksheet_by_id(SEMESTER_CONFIG["responses_gid"])
+    keywords_sheet = sheet.get_worksheet_by_id(SEMESTER_CONFIG["keywords_gid"])
+
+    # Get the latest version of our two relevant sheets
+
+    responses = pandas.DataFrame(
+        responses_sheet.get_all_records(),
+    )
+
+    keywords = pandas.DataFrame(
+        keywords_sheet.get_all_records(),
+    )
+
     user = getUser()
-    sections = buildSections()
-    responses = parseResponses(user["email"])
+    sections = buildSections(keywords)
+    responses = parseResponses(responses, user["email"])
 
     autograder_result: AutograderResult = {
         "output": f"Attendance for {user['name']} ({user['email']}) as of {last_updated_str}. If something seems incorrect, please reach out to staff through Ed!",
@@ -38,8 +66,7 @@ if __name__ == "__main__":
         "tests": [],
     }
 
-    for sectionName in sections.keys():
-        section = sections[sectionName]
+    for sectionName, section in sections.items():
 
         test: Test = {
             "score": 0.0,
@@ -71,19 +98,17 @@ if __name__ == "__main__":
         else:
             test["output"] = "No submission found."
 
-        comments = filtered_response[filtered_response["Comments"].notnull()]
+        comments = filtered_response[filtered_response["Comments"] != ""]
         if len(filtered_response) != 0 and len(comments) == 0:
-            test["output"] += "\n No feedback provided."
+            test["output"] += "\nNo feedback provided."
         elif len(comments) != 0:
             x = comments["Comments"].values
-            test["output"] += "\n Your feedback: \n ```"
+            test["output"] += "\nYour feedback:\n"
 
             for comment in x:
-                test["output"] += f"{comment} \n"
-
-            test["output"] += "```"
+                test["output"] += f"> {comment} \n"
 
         autograder_result["tests"].append(test)
 
     with open("/autograder/results/results.json", "w") as f:
-        f.write(json.dump(autograder_result))
+        f.write(json.dumps(autograder_result))
