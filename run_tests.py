@@ -6,6 +6,7 @@ import datetime
 from pytz import timezone
 import gspread
 import pandas
+import time
 
 
 class Test(TypedDict):
@@ -31,13 +32,8 @@ SEMESTER_CONFIG = {
 }
 
 
-if __name__ == "__main__":
-    # Pick the time that we'll use to represent the "last ran" time
-    last_updated = datetime.datetime.now(timezone("US/Pacific"))
-    last_updated_str = last_updated.strftime("%B %-d, %Y at %-I:%M %p")
-
+def run_autograder() -> AutograderResult:
     # Connect to Google Sheets API
-
     SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
     gc = gspread.service_account("secret.json", SCOPES)
     sheet = gc.open_by_key(SEMESTER_CONFIG["sheet_id"])
@@ -60,12 +56,13 @@ if __name__ == "__main__":
 
     autograder_result: AutograderResult = {
         "output": f"Attendance for {user['name']} ({user['email']}) as of {last_updated_str}. If something seems incorrect, please reach out to staff through Ed!",
-        "output_format": "text",
+        "output_format": "md",
         "test_output_format": "md",
         "test_name_format": "text",
         "tests": [],
     }
 
+    current_max = 0
     for sectionName, section in sections.items():
 
         test: Test = {
@@ -81,6 +78,7 @@ if __name__ == "__main__":
 
         if section["date"] == None or section["date"] < last_updated:
             test["visibility"] = "visible"
+            current_max += 1
 
         response = responses[responses["Lecture"] == sectionName]
         filter = response["Secret Word"].apply(
@@ -109,6 +107,37 @@ if __name__ == "__main__":
                 test["output"] += f"> {comment} \n"
 
         autograder_result["tests"].append(test)
+
+    autograder_result["output"] += f"\n**The current max score for this assignment is: {current_max}/{len(autograder_result["tests"])}**"
+    return autograder_result
+
+
+def attempt_run(attempts: int) -> AutograderResult:
+    try:
+        autograder_result = run_autograder()
+    except:
+        if attempts == 0:
+            autograder_result = {
+                "output": f"The autograder was rate limited. Please ask someone on staff to re-run it.",
+                "score": 0,
+                "output_format": "text",
+                "test_output_format": "md",
+                "test_name_format": "text",
+                "tests": [],
+            }
+        else:
+            time.sleep(20)
+            return attempt_run(attempts - 1)
+
+    return autograder_result
+
+
+if __name__ == "__main__":
+    # Pick the time that we'll use to represent the "last ran" time
+    last_updated = datetime.datetime.now(timezone("US/Pacific"))
+    last_updated_str = last_updated.strftime("%B %-d, %Y at %-I:%M %p")
+
+    autograder_result = attempt_run(2)
 
     with open("/autograder/results/results.json", "w") as f:
         f.write(json.dumps(autograder_result))
