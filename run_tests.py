@@ -1,7 +1,7 @@
 import json
 from utils import getUser, buildSections, parseResponses
 from pathlib import Path
-from typing import TypedDict, Literal
+from typing import TypedDict, Literal, Callable
 import datetime
 from pytz import timezone
 import gspread
@@ -80,10 +80,12 @@ def run_autograder() -> AutograderResult:
             test["visibility"] = "visible"
             current_max += 1
 
-        response = responses[responses["Lecture"] == sectionName]
-        filter = response["Secret Word"].apply(
-            lambda a: str(a).lower().strip() == section["code"], 1
+        filter_function: Callable[[str], bool] = (
+            lambda elem: elem.lower().strip() == section["code"]
         )
+
+        response = responses[responses["Lecture"] == sectionName]
+        filter = response["Secret Word"].astype("string").apply(filter_function, 1)
 
         filtered_response = response.filter(axis=0, items=filter[filter].index)
 
@@ -136,7 +138,7 @@ def attempt_run(attempts: int) -> AutograderResult:
 
 if __name__ == "__main__":
     # Pick the time that we'll use to represent the "last ran" time
-    last_updated = timezone('US/Pacific').localize(datetime.datetime.now())
+    last_updated = timezone("US/Pacific").localize(datetime.datetime.now())
 
     last_updated_str = last_updated.strftime("%B %-d, %Y at %-I:%M %p")
 

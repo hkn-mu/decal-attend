@@ -2,7 +2,7 @@ import datetime
 import json
 import pandas
 from pathlib import Path
-from typing import TypedDict
+from typing import TypedDict, Callable
 from pytz import timezone
 
 
@@ -46,10 +46,11 @@ def buildSections(keywords: pandas.DataFrame) -> dict[str, Section]:
 
 
 def parseResponses(responses: pandas.DataFrame, email: str) -> pandas.DataFrame:
-    filter = responses["Email Address"].apply(
-        lambda a: str(a).lower().strip() == email.lower(), 1
+    filter_function: Callable[[str], bool] = (
+        lambda elem: elem.lower().strip() == email.lower()
     )
 
+    filter = responses["Email Address"].astype("string").apply(filter_function, 1)
     return responses.filter(axis=0, items=filter[filter].index)
 
 
