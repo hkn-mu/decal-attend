@@ -31,7 +31,7 @@ def buildSections(keywords: pandas.DataFrame) -> dict[str, Section]:
             sections[row["Lecture"]] = {
                 "name": str(row["Lecture"]).split("(")[0].strip(),
                 "date": datetime.datetime(
-                    year, month, day, 22, 00, 00, 00, timezone("US/Pacific")
+                    year, month, day, 20, 00, 00, 00, timezone("US/Pacific")
                 ),
                 "code": str(row["Secret Word"]).lower().strip(),
             }
