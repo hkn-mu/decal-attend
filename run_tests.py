@@ -138,7 +138,7 @@ def attempt_run(attempts: int) -> AutograderResult:
 
 if __name__ == "__main__":
     # Pick the time that we'll use to represent the "last ran" time
-    last_updated = timezone("US/Pacific").localize(datetime.datetime.now(utc))
+    last_updated = datetime.datetime.now(tz=timezone("US/Pacific"))
 
     last_updated_str = last_updated.strftime("%B %-d, %Y at %-I:%M %p")
 
