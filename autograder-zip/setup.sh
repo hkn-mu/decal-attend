@@ -2,7 +2,7 @@
 
 cd /autograder/source
 
-apt-get install -y python python-pip python-dev
+apt-get install -y python3 python3-pip python-is-python3
 
 mkdir -p /root/.ssh
 cp ssh_config /root/.ssh/config
@@ -16,7 +16,7 @@ git clone git@github.com:hkn-mu/decal-attend.git /autograder/autograder_samples
 
 # Checkout the right repository
 cd /autograder/autograder_samples
-git checkout xxYY
+git checkout sp25
 
 # Install python dependencies
 pip install -r /autograder/autograder_samples/requirements.txt
